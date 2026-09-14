@@ -58,8 +58,9 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push $IMAGE_NAME:${{ github.run_number }}
-         
-
+          docker image ls
+          echo "Docker Hub repository:"
+          echo "$IMAGE_NAME"
       # 7. Install OpenShift CLI
     
       - name: Install OpenShift CLI
