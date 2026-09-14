@@ -63,7 +63,7 @@ jobs:
       - name: Deploy New Image
         run: |
           oc set image deployment/testdemo \
-            testdemo=$IMAGE_NAME:${{ github.run_number }}
+            container=$IMAGE_NAME:${{ github.run_number }}
 
       - name: Wait for Rollout
         run: |
@@ -73,3 +73,6 @@ jobs:
         run: |
           oc get pods
           oc get deployment testdemo
+
+
+          
