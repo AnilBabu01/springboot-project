@@ -79,10 +79,8 @@ jobs:
         run: |
           oc project "${{ secrets.OPENSHIFT_NAMESPACE }}"
 
-
-      # ==========================================
       # 10. Check Deployment
-      # ==========================================
+     
       - name: Check Deployment
         id: check-deployment
         run: |
@@ -94,10 +92,8 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-
-      # ==========================================
-      # 11. Update Existing Deployment
-      # ==========================================
+       # 11. Update Existing Deployment
+    
       - name: Update Existing Deployment
         if: steps.check-deployment.outputs.exists == 'true'
         run: |
@@ -107,11 +103,9 @@ jobs:
             $CONTAINER_NAME=$IMAGE_NAME:${{ github.run_number }}
 
           echo "Image updated successfully."
-
-
-      # ==========================================
-      # 12. Create Deployment If Not Present
-      # ==========================================
+         
+       # 12. Create Deployment If Not Present
+    
       - name: Create Deployment
         if: steps.check-deployment.outputs.exists == 'false'
         run: |
@@ -134,10 +128,8 @@ jobs:
 
           echo "Service created."
 
-
-      # ==========================================
-      # 13. Wait for Rollout
-      # ==========================================
+       # 13. Wait for Rollout
+      
       - name: Wait for Rollout
         run: |
           echo "Waiting for deployment rollout..."
@@ -145,10 +137,8 @@ jobs:
           oc rollout status deployment/$DEPLOYMENT_NAME \
             --timeout=180s
 
-
-      # ==========================================
-      # 14. Verify Deployment
-      # ==========================================
+     # 14. Verify Deployment
+      
       - name: Verify Deployment
         run: |
           echo "========================================"
