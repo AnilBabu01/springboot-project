@@ -50,7 +50,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -t $IMAGE_NAME:${{ github.run_number }} 
+            -t $IMAGE_NAME:${{ github.run_number }} .
           
 
       # 6. Push Docker Image
