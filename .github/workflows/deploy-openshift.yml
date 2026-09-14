@@ -129,9 +129,7 @@ jobs:
           echo "Service created."
 
        # 13. Wait for Rollout
-      
-
-      
+    
       - name: Wait for Rollout
         run: |
           echo "Waiting for deployment rollout..."
