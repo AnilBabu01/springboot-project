@@ -1,0 +1,75 @@
+name: Spring Boot CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: abdocker409/springboot-app
+
+jobs:
+
+  build-push-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Maven Build
+        run: |
+          mvn clean package -DskipTests
+
+      - name: Docker Hub Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -t $IMAGE_NAME:${{ github.run_number }} \
+            -t $IMAGE_NAME:latest .
+
+      - name: Push Docker Image
+        run: |
+          docker push $IMAGE_NAME:${{ github.run_number }}
+          docker push $IMAGE_NAME:latest
+
+      - name: Install OpenShift CLI
+        uses: redhat-actions/oc-installer@v1
+
+      - name: Login to OpenShift
+        run: |
+          oc login \
+            --server=${{ secrets.OPENSHIFT_SERVER }} \
+            --token=${{ secrets.OPENSHIFT_TOKEN }}
+
+      - name: Select OpenShift Project
+        run: |
+          oc project ${{ secrets.OPENSHIFT_NAMESPACE }}
+
+      - name: Deploy New Image
+        run: |
+          oc set image deployment/testdemo \
+            testdemo=$IMAGE_NAME:${{ github.run_number }}
+
+      - name: Wait for Rollout
+        run: |
+          oc rollout status deployment/testdemo --timeout=180s
+
+      - name: Verify Deployment
+        run: |
+          oc get pods
+          oc get deployment testdemo
