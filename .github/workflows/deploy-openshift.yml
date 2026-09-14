@@ -7,166 +7,71 @@ on:
 
 env:
   IMAGE_NAME: abdocker409/springboot-app
-  DEPLOYMENT_NAME: testdemo
-  CONTAINER_NAME: testdemo
-  APP_PORT: 8080
-
+  
 jobs:
+
   build-push-deploy:
 
     runs-on: ubuntu-latest
 
     steps:
 
-      # 1. Checkout Code
       - name: Checkout code
         uses: actions/checkout@v4
-    
-      # 2. Setup Java 21
+
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-      
-       # 3. Build Spring Boot Application
+
       - name: Maven Build
         run: |
           mvn clean package -DskipTests
 
-      # 4. Docker Hub Login
-    
       - name: Docker Hub Login
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-
-    
-      # 5. Build Docker Image
-    
       - name: Build Docker Image
         run: |
           docker build \
             -t $IMAGE_NAME:${{ github.run_number }} \
             -t $IMAGE_NAME:latest .
 
-      # 6. Push Docker Image
-     
       - name: Push Docker Image
         run: |
           docker push $IMAGE_NAME:${{ github.run_number }}
           docker push $IMAGE_NAME:latest
 
-      # 7. Install OpenShift CLI
-    
       - name: Install OpenShift CLI
         uses: redhat-actions/oc-installer@v1
 
-      # 8. Login to OpenShift
-    
       - name: Login to OpenShift
         run: |
           oc login \
-            --server="${{ secrets.OPENSHIFT_SERVER }}" \
-            --token="${{ secrets.OPENSHIFT_TOKEN }}"
+            --server=${{ secrets.OPENSHIFT_SERVER }} \
+            --token=${{ secrets.OPENSHIFT_TOKEN }}
 
-      # 9. Select OpenShift Project
-    
       - name: Select OpenShift Project
         run: |
-          oc project "${{ secrets.OPENSHIFT_NAMESPACE }}"
+          oc project ${{ secrets.OPENSHIFT_NAMESPACE }}
 
-      # 10. Check Deployment
-     
-      - name: Check Deployment
-        id: check-deployment
+      - name: Deploy New Image
         run: |
-          if oc get deployment "$DEPLOYMENT_NAME" >/dev/null 2>&1; then
-            echo "Deployment $DEPLOYMENT_NAME already exists."
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Deployment $DEPLOYMENT_NAME does not exist."
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
+          oc set image deployment/testdemo \
+            springboot-app=$IMAGE_NAME:${{ github.run_number }}
 
-       # 11. Update Existing Deployment
-    
-      - name: Update Existing Deployment
-        if: steps.check-deployment.outputs.exists == 'true'
-        run: |
-          echo "Updating existing deployment..."
-
-          oc set image deployment/$DEPLOYMENT_NAME \
-            $CONTAINER_NAME=$IMAGE_NAME:${{ github.run_number }}
-
-          echo "Image updated successfully."
-         
-       # 12. Create Deployment If Not Present
-    
-      - name: Create Deployment
-        if: steps.check-deployment.outputs.exists == 'false'
-        run: |
-          echo "Deployment does not exist."
-          echo "Creating deployment..."
-
-          oc create deployment $DEPLOYMENT_NAME \
-            --image=$IMAGE_NAME:${{ github.run_number }}
-
-          echo "Deployment created."
-
-          # Set container port
-          oc set resources deployment/$DEPLOYMENT_NAME \
-            --requests=cpu=100m,memory=256Mi \
-            --limits=cpu=500m,memory=512Mi
-
-          oc expose deployment/$DEPLOYMENT_NAME \
-            --port=$APP_PORT \
-            --target-port=$APP_PORT
-
-          echo "Service created."
-
-       # 13. Wait for Rollout
-    
       - name: Wait for Rollout
         run: |
-          echo "Waiting for deployment rollout..."
+          oc rollout status deployment/testdemo --timeout=180s
 
-          oc rollout status deployment/$DEPLOYMENT_NAME \
-            --timeout=180s
-
-     # 14. Verify Deployment
-      
       - name: Verify Deployment
         run: |
-          echo "========================================"
-          echo "Deployment"
-          echo "========================================"
+          oc get pods
+          oc get deployment testdemo
 
-          oc get deployment $DEPLOYMENT_NAME
 
-          echo ""
-          echo "========================================"
-          echo "Pods"
-          echo "========================================"
-
-          oc get pods -l app=$DEPLOYMENT_NAME
-
-          echo ""
-          echo "========================================"
-          echo "Service"
-          echo "========================================"
-
-          oc get service $DEPLOYMENT_NAME
-
-          echo ""
-          echo "========================================"
-          echo "Deployment Image"
-          echo "========================================"
-
-          oc get deployment $DEPLOYMENT_NAME \
-            -o jsonpath='{.spec.template.spec.containers[0].image}'
-
-          echo ""
