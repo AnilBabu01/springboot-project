@@ -59,7 +59,7 @@ jobs:
         run: |
           docker push $IMAGE_NAME:${{ github.run_number }}
            
-          docker ls
+         
 
       # 7. Install OpenShift CLI
     
