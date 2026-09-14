@@ -50,15 +50,15 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            -t $IMAGE_NAME:${{ github.run_number }} \
-            -t $IMAGE_NAME:latest .
+            -t $IMAGE_NAME:${{ github.run_number }} 
+          
 
       # 6. Push Docker Image
      
       - name: Push Docker Image
         run: |
           docker push $IMAGE_NAME:${{ github.run_number }}
-          docker push $IMAGE_NAME:latest
+         
 
       # 7. Install OpenShift CLI
     
