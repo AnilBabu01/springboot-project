@@ -36,6 +36,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+        
         </dependencies>
     </dependencyManagement>
 
@@ -103,6 +104,11 @@
             <artifactId>camel-test-spring-junit6</artifactId>
             <scope>test</scope>
         </dependency>
+
+
+       
+
+
     </dependencies>
 
     <build>
