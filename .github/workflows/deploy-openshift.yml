@@ -141,32 +141,12 @@ jobs:
      # 14. Verify Deployment
       - name: Verify Deployment
         run: |
-          echo "========================================"
           echo "Deployment"
-          echo "========================================"
-
+          
           oc get deployment $DEPLOYMENT_NAME
-
-          echo ""
-          echo "========================================"
-          echo "Pods"
-          echo "========================================"
 
           oc get pods -l app=$DEPLOYMENT_NAME
 
-          echo ""
-          echo "========================================"
-          echo "Service"
-          echo "========================================"
-
           oc get service $DEPLOYMENT_NAME
 
-          echo ""
-          echo "========================================"
-          echo "Deployment Image"
-          echo "========================================"
-
-          oc get deployment $DEPLOYMENT_NAME \
-            -o jsonpath='{.spec.template.spec.containers[0].image}'
-
-          echo ""
+      
