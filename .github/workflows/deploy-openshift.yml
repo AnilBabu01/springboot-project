@@ -164,18 +164,17 @@ jobs:
             --timeout=180s
 
 
-          - name: Delete Failed Docker Image Version
-             if: failure()
-             run: |
+      - name: Delete Failed Docker Image Version
+        if: failure()
+        run: |
+            echo "Deployment failed."
+            echo "Deleting Docker image tag: ${{ github.run_number }}"
 
-             echo "Deployment failed."
-             echo "Deleting Docker image tag: ${{ github.run_number }}"
+            curl -X DELETE \
+            -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
+            "https://hub.docker.com/v2/namespaces/abdocker409/repositories/springboot-app-14-09-2026/tags/${{ github.run_number }}/"
 
-             curl -X DELETE \
-             -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
-             "https://hub.docker.com/v2/namespaces/abdocker409/repositories/springboot-app-14-09-2026/tags/${{ github.run_number }}/"
-
-             echo "Failed image tag deleted."
+            echo "Failed image tag deleted."
 
       # 15. Verify Deployment
     
@@ -217,4 +216,3 @@ jobs:
           echo ""
 
 
-          
