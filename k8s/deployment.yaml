@@ -22,6 +22,11 @@ spec:
         - name: testdemo
           image: abdocker409/springboot-app-14-09-2026:latest
 
+          # Load all values from OpenShift Secret
+          envFrom:
+            - secretRef:
+                name: salesforce-secret
+
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -30,6 +35,7 @@ spec:
             requests:
               cpu: 100m
               memory: 256Mi
+
             limits:
               cpu: 500m
               memory: 512Mi
