@@ -8,7 +8,7 @@ on:
 env:
   IMAGE_NAME: abdocker409/springboot-app-14-09-2026
   DEPLOYMENT_NAME: testdemo
-  CONTAINER_NAME: testdemo
+  CONTAINER_NAME: springboot-app-14-09-2026
   APP_PORT: 8080
 
 jobs:
@@ -151,6 +151,6 @@ jobs:
 
 
 
-          
+
 
       
