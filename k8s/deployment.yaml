@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testdemo
+  labels:
+    app: testdemo
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: testdemo
+
+  template:
+    metadata:
+      labels:
+        app: testdemo
+
+    spec:
+      containers:
+        - name: testdemo
+          image: abdocker409/springboot-app-14-09-2026:latest
+
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testdemo
+
+spec:
+  selector:
+    app: testdemo
+
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
