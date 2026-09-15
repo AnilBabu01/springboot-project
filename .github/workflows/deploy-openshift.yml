@@ -171,7 +171,7 @@ jobs:
             echo "Deleting Docker image tag: ${{ github.run_number }}"
 
             curl -X DELETE \
-            -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secrets.DOCKERHUB_TOKENS }}" \
             "https://hub.docker.com/v2/namespaces/abdocker409/repositories/springboot-app-14-09-2026/tags/${{ github.run_number }}/"
 
             echo "Failed image tag deleted."
