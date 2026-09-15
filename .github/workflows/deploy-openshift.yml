@@ -88,9 +88,9 @@ jobs:
         uses: redhat-actions/oc-installer@v1
 
 
-      # =========================================================
+      
       # 8. Login to OpenShift
-      # =========================================================
+    
 
       - name: Login to OpenShift
         run: |
